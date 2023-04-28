@@ -14,43 +14,39 @@
 
 package org.eclipse.edc.protocol.dsp.catalog.dispatcher.delegate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
-import okhttp3.MediaType;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.eclipse.edc.catalog.spi.Catalog;
 import org.eclipse.edc.catalog.spi.CatalogRequestMessage;
-import org.eclipse.edc.jsonld.transformer.JsonLdTransformerRegistry;
 import org.eclipse.edc.protocol.dsp.spi.dispatcher.DspHttpDispatcherDelegate;
+import org.eclipse.edc.protocol.dsp.spi.serialization.JsonLdRemoteMessageSerializer;
 import org.eclipse.edc.spi.EdcException;
+import org.eclipse.edc.transform.spi.TypeTransformerRegistry;
 
 import java.io.IOException;
 import java.util.function.Function;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
-import static org.eclipse.edc.jsonld.util.JsonLdUtil.compact;
 import static org.eclipse.edc.jsonld.util.JsonLdUtil.expand;
-import static org.eclipse.edc.protocol.dsp.catalog.spi.CatalogApiPaths.BASE_PATH;
-import static org.eclipse.edc.protocol.dsp.catalog.spi.CatalogApiPaths.CATALOG_REQUEST;
+import static org.eclipse.edc.protocol.dsp.catalog.dispatcher.CatalogApiPaths.BASE_PATH;
+import static org.eclipse.edc.protocol.dsp.catalog.dispatcher.CatalogApiPaths.CATALOG_REQUEST;
 import static org.eclipse.edc.protocol.dsp.catalog.transform.DspCatalogPropertyAndTypeNames.DSPACE_PREFIX;
 import static org.eclipse.edc.protocol.dsp.catalog.transform.DspCatalogPropertyAndTypeNames.DSPACE_SCHEMA;
 
 /**
  * Delegate for dispatching catalog requests as defined in the dataspace protocol specification.
  */
-public class CatalogRequestHttpDelegate implements DspHttpDispatcherDelegate<CatalogRequestMessage, Catalog> {
-
-    private static final String APPLICATION_JSON = "application/json";
+public class CatalogRequestHttpDelegate extends DspHttpDispatcherDelegate<CatalogRequestMessage, Catalog> {
 
     private final ObjectMapper mapper;
-    private final JsonLdTransformerRegistry transformerRegistry;
+    private final TypeTransformerRegistry transformerRegistry;
 
-    public CatalogRequestHttpDelegate(ObjectMapper mapper, JsonLdTransformerRegistry transformerRegistry) {
+    public CatalogRequestHttpDelegate(JsonLdRemoteMessageSerializer serializer, ObjectMapper mapper, TypeTransformerRegistry transformerRegistry) {
+        super(serializer);
         this.mapper = mapper;
         this.transformerRegistry = transformerRegistry;
     }
@@ -70,15 +66,7 @@ public class CatalogRequestHttpDelegate implements DspHttpDispatcherDelegate<Cat
      */
     @Override
     public Request buildRequest(CatalogRequestMessage message) {
-        var catalogRequestMessage = org.eclipse.edc.catalog.spi.protocol.CatalogRequestMessage.Builder.newInstance()
-                .filter(message.getQuerySpec())
-                .build();
-        var requestBody = RequestBody.create(toJson(catalogRequestMessage), MediaType.get(APPLICATION_JSON));
-
-        return new Request.Builder()
-                .url(message.getCallbackAddress() + BASE_PATH + CATALOG_REQUEST)
-                .post(requestBody)
-                .build();
+        return buildRequest(message, BASE_PATH + CATALOG_REQUEST, jsonLdContext());
     }
 
     /**
@@ -106,19 +94,6 @@ public class CatalogRequestHttpDelegate implements DspHttpDispatcherDelegate<Cat
                 throw new EdcException("Failed to read response body.", e);
             }
         };
-    }
-
-    private String toJson(org.eclipse.edc.catalog.spi.protocol.CatalogRequestMessage message) {
-        try {
-            var transformResult = transformerRegistry.transform(message, JsonObject.class);
-            if (transformResult.succeeded()) {
-                var compacted = compact(transformResult.getContent(), jsonLdContext());
-                return mapper.writeValueAsString(compacted);
-            }
-            throw new EdcException(format("Failed to write request: %s", join(", ", transformResult.getFailureMessages())));
-        } catch (JsonProcessingException e) {
-            throw new EdcException("Failed to serialize catalog request", e);
-        }
     }
     
     private JsonObject jsonLdContext() {

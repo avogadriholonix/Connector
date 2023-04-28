@@ -34,6 +34,7 @@ import java.util.List;
 
 @OpenAPIDefinition
 @Tag(name = "Asset")
+@Deprecated(since = "milestone9")
 public interface AssetApi {
 
     @Operation(description = "Creates a new asset together with a data address",
@@ -43,8 +44,10 @@ public interface AssetApi {
                     @ApiResponse(responseCode = "400", description = "Request body was malformed",
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class)))),
                     @ApiResponse(responseCode = "409", description = "Could not create asset, because an asset with that ID already exists",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class)))) }
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class)))) },
+            deprecated = true
     )
+    @Deprecated(since = "milestone9")
     IdResponseDto createAsset(@Valid AssetEntryDto assetEntryDto);
 
     @Operation(description = "Gets all assets according to a particular query",
@@ -53,8 +56,9 @@ public interface AssetApi {
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = AssetResponseDto.class)))),
                     @ApiResponse(responseCode = "400", description = "Request body was malformed",
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class))))
-            }, deprecated = true)
-    @Deprecated
+            }, deprecated = true
+    )
+    @Deprecated(since = "milestone9")
     List<AssetResponseDto> getAllAssets(@Valid QuerySpecDto querySpecDto);
 
     @Operation(description = " all assets according to a particular query",
@@ -63,7 +67,9 @@ public interface AssetApi {
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = AssetResponseDto.class)))),
                     @ApiResponse(responseCode = "400", description = "Request body was malformed",
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class))))
-            })
+            }, deprecated = true
+    )
+    @Deprecated(since = "milestone9")
     List<AssetResponseDto> requestAssets(@Valid QuerySpecDto querySpecDto);
 
     @Operation(description = "Gets an asset with the given ID",
@@ -74,7 +80,8 @@ public interface AssetApi {
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class)))),
                     @ApiResponse(responseCode = "404", description = "An asset with the given ID does not exist",
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class))))
-            })
+            }
+    )
     AssetResponseDto getAsset(String id);
 
     @Operation(description = "Removes an asset with the given ID if possible. Deleting an asset is only possible if that asset is not yet referenced " +
@@ -88,7 +95,9 @@ public interface AssetApi {
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class)))),
                     @ApiResponse(responseCode = "409", description = "The asset cannot be deleted, because it is referenced by a contract agreement",
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class))))
-            })
+            }, deprecated = true
+    )
+    @Deprecated(since = "milestone9")
     void removeAsset(String id);
 
     @Operation(description = "Updates an asset with the given ID if it exists. If the asset is not found, no further action is taken. " +
@@ -98,7 +107,9 @@ public interface AssetApi {
                     @ApiResponse(responseCode = "404", description = "Asset could not be updated, because it does not exist."),
                     @ApiResponse(responseCode = "400", description = "Request was malformed, e.g. id was null",
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class)))),
-            })
+            }, deprecated = true
+    )
+    @Deprecated(since = "milestone9")
     void updateAsset(String assetId, @Valid AssetUpdateRequestDto asset);
 
     @Operation(description = "Updates a DataAddress for an asset with the given ID.",
@@ -108,7 +119,9 @@ public interface AssetApi {
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class)))),
                     @ApiResponse(responseCode = "400", description = "Request was malformed, e.g. id was null",
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class)))),
-            })
+            }, deprecated = true
+    )
+    @Deprecated(since = "milestone9")
     void updateDataAddress(String assetId, @Valid DataAddressDto dataAddress);
 
 
@@ -120,7 +133,9 @@ public interface AssetApi {
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class)))),
                     @ApiResponse(responseCode = "404", description = "An asset with the given ID does not exist",
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApiErrorDetail.class))))
-            })
+            }, deprecated = true
+    )
+    @Deprecated(since = "milestone9")
     DataAddressDto getAssetDataAddress(String id);
 }
 

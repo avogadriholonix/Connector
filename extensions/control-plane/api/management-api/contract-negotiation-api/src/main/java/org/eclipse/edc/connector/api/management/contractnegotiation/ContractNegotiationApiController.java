@@ -27,17 +27,17 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.edc.api.model.IdResponseDto;
 import org.eclipse.edc.api.query.QuerySpecDto;
-import org.eclipse.edc.api.transformer.DtoTransformerRegistry;
 import org.eclipse.edc.connector.api.management.contractnegotiation.model.ContractAgreementDto;
 import org.eclipse.edc.connector.api.management.contractnegotiation.model.ContractNegotiationDto;
 import org.eclipse.edc.connector.api.management.contractnegotiation.model.NegotiationInitiateRequestDto;
 import org.eclipse.edc.connector.api.management.contractnegotiation.model.NegotiationState;
 import org.eclipse.edc.connector.contract.spi.types.negotiation.ContractNegotiation;
-import org.eclipse.edc.connector.contract.spi.types.negotiation.ContractRequestMessage;
+import org.eclipse.edc.connector.contract.spi.types.negotiation.ContractRequest;
 import org.eclipse.edc.connector.spi.contractnegotiation.ContractNegotiationService;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.query.QuerySpec;
 import org.eclipse.edc.spi.result.Result;
+import org.eclipse.edc.transform.spi.TypeTransformerRegistry;
 import org.eclipse.edc.web.spi.exception.InvalidRequestException;
 import org.eclipse.edc.web.spi.exception.ObjectNotFoundException;
 
@@ -56,9 +56,9 @@ import static org.eclipse.edc.web.spi.exception.ServiceResultHandler.exceptionMa
 public class ContractNegotiationApiController implements ContractNegotiationApi {
     private final Monitor monitor;
     private final ContractNegotiationService service;
-    private final DtoTransformerRegistry transformerRegistry;
+    private final TypeTransformerRegistry transformerRegistry;
 
-    public ContractNegotiationApiController(Monitor monitor, ContractNegotiationService service, DtoTransformerRegistry transformerRegistry) {
+    public ContractNegotiationApiController(Monitor monitor, ContractNegotiationService service, TypeTransformerRegistry transformerRegistry) {
         this.monitor = monitor;
         this.service = service;
         this.transformerRegistry = transformerRegistry;
@@ -120,7 +120,7 @@ public class ContractNegotiationApiController implements ContractNegotiationApi 
     @POST
     @Override
     public IdResponseDto initiateContractNegotiation(@Valid NegotiationInitiateRequestDto initiateDto) {
-        var transformResult = transformerRegistry.transform(initiateDto, ContractRequestMessage.class);
+        var transformResult = transformerRegistry.transform(initiateDto, ContractRequest.class);
         if (transformResult.failed()) {
             throw new InvalidRequestException(transformResult.getFailureMessages());
         }

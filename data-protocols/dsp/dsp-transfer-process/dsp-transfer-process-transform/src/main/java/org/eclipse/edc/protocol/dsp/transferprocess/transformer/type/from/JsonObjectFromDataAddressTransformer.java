@@ -16,7 +16,7 @@ package org.eclipse.edc.protocol.dsp.transferprocess.transformer.type.from;
 
 import jakarta.json.JsonBuilderFactory;
 import jakarta.json.JsonObject;
-import org.eclipse.edc.jsonld.transformer.AbstractJsonLdTransformer;
+import org.eclipse.edc.jsonld.spi.transformer.AbstractJsonLdTransformer;
 import org.eclipse.edc.spi.types.domain.DataAddress;
 import org.eclipse.edc.transform.spi.TransformerContext;
 import org.jetbrains.annotations.NotNull;
@@ -32,10 +32,10 @@ public class JsonObjectFromDataAddressTransformer extends AbstractJsonLdTransfor
     }
 
     @Override
-    public @Nullable JsonObject transform(@NotNull DataAddress transferCompletionMessage, @NotNull TransformerContext context) {
+    public @Nullable JsonObject transform(@NotNull DataAddress dataAddress, @NotNull TransformerContext context) {
         var builder = jsonBuilderFactory.createObjectBuilder();
 
-        transferCompletionMessage.getProperties().forEach((k, v) -> builder.add(k, v));
+        dataAddress.getProperties().forEach(builder::add);
 
         return builder.build();
     }
